@@ -1,6 +1,8 @@
+// Dependencies
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const consoleTable = require("console.table");
+const util = require('util');
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -10,12 +12,14 @@ const connection = mysql.createConnection({
     database: "employee_tracker_db"
 });
 
+
 connection.connect(err => {
     if (err) throw err;
     console.log(`We connected! Connected as thread id ${connection.threadId}`);
-    connection.end();
 });
+connection.queryPromise = util.promisify(connection.query);
 
+// Initial Questions Prompt
 function startSearch() {
     inquirer
         .prompt({
@@ -58,38 +62,59 @@ function startSearch() {
         })
 };
 
+startSearch();
+
 // View all employees
 function employeeView() {
-    const query = "SELECT first_name, last_name, role_id, manager_id FROM employee WHERE ?";
+    const query = "SELECT employee.first_name, employee.last_name, role.title, employee.manager_id FROM employee INNER JOIN role ON role.id=employee.role_id";
     connection.query(query, function(err, res) {
         if (err) throw err
-        console.table();
+        console.table(res);
         startSearch();
     });
 };
 
 // View all departments
 function departmentView() {
-    const query = "SELECT first_name, last_name, role_id, manager_id FROM employee WHERE ?";
+    const query = "SELECT department.id, department.name FROM department";
     connection.query(query, function(err, res) {
         if (err) throw err
-        console.table();
+        console.table(res);
         startSearch();
     });
 };
 
 // View all roles
 function roleView() {
-    const query = "SELECT first_name, last_name, role_id, manager_id FROM employee WHERE ?";
+    const query = "SELECT role.id, role.title, role.salary, department.name FROM role INNER JOIN department ON department.id=role.department_id";
     connection.query(query, function(err, res) {
         if (err) throw err
-        console.table();
+        console.table(res);
         startSearch();
     });
 };
 
-function employeeAdd() {
-    inquirer
+
+// Add Employees
+async function employeeAdd() {
+
+    let roles = await connection.queryPromise('SELECT id, title FROM role');
+    roles = roles.map(role => {
+        return {
+            value: role.id,
+            name: role.title
+        }
+    });
+
+    let managers = await connection.queryPromise('SELECT id, first_name, last_name FROM employee');
+    managers = managers.map(manager => {
+        return {
+            value: manager.id,
+            name: manager.first_name + ' ' + manager.last_name
+        }
+    });
+
+    const answer = await inquirer
         .prompt([
             {
             name: "firstname",
@@ -105,28 +130,59 @@ function employeeAdd() {
             name: "role",
             type: "list",
             message: "What is the employee's role?",
-            choices: [
-                "Sales Lead",
-                "Salesperson",
-                "Lead Engineer",
-                "Software Engineer",
-                "Lawyer",
-                "Accountant",
-                "Legal Team Lead"
-            ]},
+            choices: roles
+            },
             {
             name: "manager",
             type: "list",
             message: "Who is the employee's manager?",
-            choices: [
-                "Amanda Smith",
-                "James Bennett",
-                "Stacy Camino",
-                "Trent Tucker",
-                "Tiffany Judici",
-                "John Hanker"
-            ]}
-        ]).then(function(answer) {
-            
-        })
+            choices: managers
+            }
+        ])
+
+        console.log(answer.role);
+        console.log(answer.manager);
+
+        await connection.queryPromise('INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [answer.first_name, answer.last_name, answer.role_id, answer.manager_id])
+
+        startSearch();
 };
+
+// Update Employee Role
+async function employeeRole() {
+    let roles = await connection.queryPromise('SELECT id, title FROM role');
+    roles = roles.map(role => {
+        return {
+            value: role.id,
+            name: role.title
+        }
+    });
+
+    let employees = await connection.queryPromise('SELECT id, first_name, last_name FROM employee');
+    employees = employees.map(employee => {
+        return {
+            value: employee.id,
+            name: employee.first_name + ' ' + employee.last_name
+        }
+    });
+    const answer = await inquirer
+        .prompt([
+            {
+            name: "employee",
+            type: "list",
+            message: "Which employee would you like to update?",
+            choices: employees
+            },
+            {
+            name: "role",
+            type: "list",
+            message: "What is the employee's role?",
+            choices: roles
+            }
+        ])
+
+        console.log(answer.role);
+        console.log(answer.employee);
+        // NOT DONE WITH UPDATE PORTION
+        await connection.queryPromise('UPDATE employee SET title= WHERE something')
+}
