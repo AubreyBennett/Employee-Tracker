@@ -87,3 +87,46 @@ function roleView() {
         startSearch();
     });
 };
+
+function employeeAdd() {
+    inquirer
+        .prompt([
+            {
+            name: "firstname",
+            type: "input",
+            message: "What is the employee's first name?",
+            },
+            {
+            name: "lastname",
+            type: "input",
+            message: "What is the employee's last name?",
+            },
+            {
+            name: "role",
+            type: "list",
+            message: "What is the employee's role?",
+            choices: [
+                "Sales Lead",
+                "Salesperson",
+                "Lead Engineer",
+                "Software Engineer",
+                "Lawyer",
+                "Accountant",
+                "Legal Team Lead"
+            ]},
+            {
+            name: "manager",
+            type: "list",
+            message: "Who is the employee's manager?",
+            choices: [
+                "Amanda Smith",
+                "James Bennett",
+                "Stacy Camino",
+                "Trent Tucker",
+                "Tiffany Judici",
+                "John Hanker"
+            ]}
+        ]).then(function(answer) {
+            
+        })
+};
