@@ -1,5 +1,6 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+const consoleTable = require("console.table");
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -33,7 +34,7 @@ function startSearch() {
         }).then(function(answer) {
             switch (answer.action) {
                 case "View all employees":
-                    employeeSearch();
+                    employeeView();
                     break;
                 case "Add employee":
                     employeeAdd();
@@ -42,17 +43,26 @@ function startSearch() {
                     employeeRole();
                     break;
                 case "View all departments":
-                    departmentSearch();
+                    departmentView();
                     break;
                 case "Add department":
                     departmentAdd();
                     break;
                 case "View all roles":
-                    roleSearch();
+                    roleView();
                     break;
                 case "Add role":
                     roleAdd();
                     break;
             }
         })
+};
+
+function employeeView() {
+    const query = "SELECT first_name, last_name, role_id, manager_id FROM employee WHERE ?";
+    connection.query(query, function(err, res) {
+        if (err) throw err
+        console.table();
+        startSearch();
+    });
 };
