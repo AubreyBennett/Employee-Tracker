@@ -143,7 +143,7 @@ async function employeeAdd() {
         console.log(answer.role);
         console.log(answer.manager);
 
-        await connection.queryPromise('INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [answer.first_name, answer.last_name, answer.role_id, answer.manager_id])
+        await connection.queryPromise('INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [answer.firstname, answer.lastname, answer.role, answer.manager])
 
         startSearch();
 };
