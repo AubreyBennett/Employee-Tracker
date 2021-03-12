@@ -33,7 +33,8 @@ function startSearch() {
                 "View all departments",
                 "Add department",
                 "View all roles",
-                "Add role"
+                "Add role",
+                "Delete employee"
             ]
         }).then(function(answer) {
             switch (answer.action) {
@@ -57,6 +58,9 @@ function startSearch() {
                     break;
                 case "Add role":
                     roleAdd();
+                    break;
+                case "Delete employee":
+                    employeeDelete();
                     break;
             }
         })
@@ -249,4 +253,34 @@ async function employeeRole() {
         console.log(answer.employee);
         // NOT DONE WITH UPDATE PORTION
         await connection.queryPromise('UPDATE employee.first_name, employee.last_name ')
-}
+};
+
+// Delete Employees
+
+// NEED TO FINISH THIS AS WELL
+async function employeeDelete() {
+
+    let employees = await connection.queryPromise('SELECT id, first_name, last_name FROM employee');
+    employees = employees.map(employee => {
+        return {
+            value: employee.id,
+            name: employee.first_name + ' ' + employee.last_name
+        }
+    });
+
+    const answer = await inquirer
+        .prompt([
+            {
+            name: "employee",
+            type: "list",
+            message: "Which employee would you like to delete?",
+            choices: employees,
+            }
+        ])
+
+        console.log(answer.employee);
+
+        await connection.queryPromise(`DELETE FROM employee WHERE id=${employee.id}`);
+
+        startSearch();
+};
