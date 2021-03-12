@@ -148,6 +148,70 @@ async function employeeAdd() {
         startSearch();
 };
 
+// Add Departments
+async function departmentAdd() {
+
+    let departments = await connection.queryPromise('SELECT name FROM department');
+    departments = departments.map(department => {
+        return {
+            name: department.name
+        }
+    });
+
+    const answer = await inquirer
+        .prompt([
+            {
+            name: "name",
+            type: "input",
+            message: "What is the departments name?",
+            }
+        ])
+
+        console.log(answer.name);
+
+        await connection.queryPromise('INSERT INTO department (name) VALUES (?)', answer.name)
+
+        startSearch();
+};
+
+// Add Roles
+async function roleAdd() {
+
+    let roles = await connection.queryPromise('SELECT title, salary, department_id FROM role');
+    roles = roles.map(role => {
+        return {
+            name: role.title,
+            name: role.salary,
+            name: role.department_id
+        }
+    });
+
+    const answer = await inquirer
+        .prompt([
+            {
+            name: "role",
+            type: "input",
+            message: "What is the role you would like to add?",
+            },
+            {
+            name: "salary",
+            type: "input",
+            message: "What is your role's salary?",
+            },
+            {
+            name: "id",
+            type: "input",
+            message: "What is the role's department id?",
+            }
+        ])
+
+        console.log(answer.name);
+
+        await connection.queryPromise('INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)', [answer.role, answer.salary, answer.id])
+
+        startSearch();
+};
+
 // Update Employee Role
 async function employeeRole() {
     let roles = await connection.queryPromise('SELECT id, title FROM role');
@@ -184,5 +248,5 @@ async function employeeRole() {
         console.log(answer.role);
         console.log(answer.employee);
         // NOT DONE WITH UPDATE PORTION
-        await connection.queryPromise('UPDATE employee SET title= WHERE something')
+        await connection.queryPromise('UPDATE employee.first_name, employee.last_name ')
 }
