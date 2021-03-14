@@ -251,13 +251,14 @@ async function employeeRole() {
 
         console.log(answer.role);
         console.log(answer.employee);
-        // NOT DONE WITH UPDATE PORTION
-        await connection.queryPromise('UPDATE employee.first_name, employee.last_name ')
+      
+        await connection.queryPromise(`UPDATE employee SET role=? WHERE id=?`, [answer.role, answer.employee])
+
+        startSearch();
 };
 
 // Delete Employees
 
-// NEED TO FINISH THIS AS WELL
 async function employeeDelete() {
 
     let employees = await connection.queryPromise('SELECT id, first_name, last_name FROM employee');
@@ -280,7 +281,7 @@ async function employeeDelete() {
 
         console.log(answer.employee);
 
-        await connection.queryPromise(`DELETE FROM employee WHERE id=${employee.id}`);
+        await connection.queryPromise(`DELETE FROM employee WHERE id=?`, [answer.employee]);
 
         startSearch();
 };
