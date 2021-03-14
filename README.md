@@ -8,6 +8,8 @@ A solution for managing a company's employees using node, inquirer, and MySQL. A
 
   * Update employee roles
 
+  * Delete employee
+
 The following is the database schema containing three tables:
 
 ![Database Schema](Assets/schema.png)
